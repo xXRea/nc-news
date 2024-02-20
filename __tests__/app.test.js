@@ -40,8 +40,38 @@ describe("GET /api", () => {
       .expect(200)
       .then((response) => {
         const endpoints = require("../endpoints.json");
-        const endpoint = response.body.endpoints 
+        const endpoint = response.body.endpoints;
         expect(endpoints).toEqual(endpoint);
+      });
+  });
+});
+
+describe("GET /api/articles/:article_id", () => {
+  test("GET:200 status responds with the correct article object", () => {
+    return request(app)
+      .get("/api/articles/2")
+      .expect(200)
+      .then((res) => {
+        const article = res.body.articles;
+        expect(article.article_id).toBe(2);
+        expect(article.title).toBe("Sony Vaio; or, The Laptop");
+      });
+  });
+  test("GET:404 sends an appropriate status and error message when given a valid but non-existent id", () => {
+    return request(app)
+      .get("/api/articles?article_id=9999")
+      .expect(404)
+      .then((response) => {
+        const err = response.body
+        expect(err.msg).toBe("Not found");
+      });
+  });
+  test("GET:400 sends an appropriate status and error message when given an invalid id", () => {
+    return request(app)
+      .get("/api/articles/not-a-article")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad request");
       });
   });
 });
