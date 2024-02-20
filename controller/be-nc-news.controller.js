@@ -1,6 +1,6 @@
 const { selectTopics } = require("../model/be-nc-news.model");
 const data = require("../db/data/test-data/index")
-
+const fs = require("fs")
 
 
 function getTopics(req, res, next) {
@@ -10,6 +10,15 @@ function getTopics(req, res, next) {
         next(err)
     })
 }
+
+
+
+   
+
+
+
+
+
 
 
 module.exports = {getTopics}
