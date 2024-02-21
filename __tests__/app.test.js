@@ -83,7 +83,7 @@ describe("GET /api/articles/:article_id", () => {
         expect(response.body.msg).toBe("Bad request");
       });
   });
-// });
+
 
 describe("GET /api/articles", () => {
   test("GET:200 status responds with an array of articles with expected properties", () => {
@@ -135,3 +135,45 @@ describe("GET /api/articles", () => {
     }
   );
 });
+
+describe("GET /api/articles/:article_id/comments", () => {
+  test("GET:200 status responds with an array of comments with the requested article id with each comment having the correct properties", () => {
+    return request(app)
+      .get("/api/articles/9/comments")
+      .expect(200)
+      .then((res) => {
+        const comment = res.body.comments;
+        expect(Array.isArray(comment)).toBe(true);
+        expect(comment.length).toBe(2);
+        comment.forEach((comment) => {
+          expect(typeof comment.comment_id).toBe('number');
+          expect(comment.article_id).toBe(9);
+          expect(typeof comment.votes).toBe('number')
+          expect(typeof comment.author).toBe("string")
+          expect(typeof comment.body).toBe('string')
+          expect(typeof comment.created_at).toBe("string")
+        });
+      });
+  });
+  test("GET:200 status responds with the most recent comments first.", () => {
+    return request(app)
+    .get("/api/articles/9/comments")
+    .expect(200)
+    .then((res) => {
+      const comment = res.body.comments;
+      expect(comment).toBeSortedBy('created_at', {descending: true})
+
+    })
+  })
+  test("GET:204 responds with a message of no comments when the articles doesnt have any comments", () => {
+    return request(app)
+    .get("/api/articles/13/comments")
+    .expect(404)
+    .then((res) => {
+      const err = res.body.msg
+
+      expect(err).toBe("no comments on this article");
+    })
+    })
+  })
+
