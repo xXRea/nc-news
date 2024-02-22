@@ -2,8 +2,9 @@ const {
   selectArticlesById,
   selectArticles,
   selectAllCommentsByArticleId,
+  insertCommentByArticleId
 } = require("../model/articles.model");
-// const data = require("../db/data/test-data/index")
+const data = require("../db/data/test-data/index")
 
 function getArticlesById(req, res, next) {
   const { article_id } = req.params;
@@ -26,8 +27,6 @@ function getArticles(req, res, next) {
     });
 }
 
-
-
 function getAllCommentsByArticleId(req, res, next) {
   const { article_id } = req.params;
   selectAllCommentsByArticleId(article_id)
@@ -39,4 +38,17 @@ function getAllCommentsByArticleId(req, res, next) {
     });
 }
 
-module.exports = { getArticlesById, getArticles, getAllCommentsByArticleId };
+function postComments(req, res, next) {
+  const {article_id} = req.params
+  const newComment = req.body
+  insertCommentByArticleId(article_id, newComment)
+  .then((newComment) => {
+    res.status(201).send({ newComment })
+  })
+  .catch((err) => {
+    next(err)
+  })
+}
+
+
+module.exports = { getArticlesById, getArticles, getAllCommentsByArticleId, postComments };

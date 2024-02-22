@@ -3,7 +3,7 @@ const app = require("../app");
 const db = require("../db/connection");
 const seed = require("../db/seeds/seed");
 const data = require("../db/data/test-data/index");
-require("jest-sorted")
+require("jest-sorted");
 
 beforeAll(() => seed(data));
 afterAll(() => db.end());
@@ -56,12 +56,11 @@ describe("GET /api/articles/:article_id", () => {
         const article = res.body.articles;
         expect(article.article_id).toBe(2);
         expect(article.title).toBe("Sony Vaio; or, The Laptop");
-        expect(article.author).toBe("icellusedkars"); 
+        expect(article.author).toBe("icellusedkars");
         expect(typeof article.body).toBe("string");
         expect(article.created_at).toBe("2020-10-16T05:03:00.000Z");
         expect(typeof article.votes).toBe("number");
-        expect(typeof article.article_img_url).toBe("string")
-        
+        expect(typeof article.article_img_url).toBe("string");
       });
   });
   test("GET:404 sends an appropriate status and error message when given a valid but non-existent id", () => {
@@ -69,21 +68,19 @@ describe("GET /api/articles/:article_id", () => {
       .get("/api/articles/9999")
       .expect(404)
       .then((response) => {
-        const error = response.body.msg
+        const error = response.body.msg;
         expect(error).toBe("article does not exist");
-      })
-
-      })
-  });
-  test("GET:400 sends an appropriate status and error message when given an invalid id", () => {
-    return request(app)
-      .get("/api/articles/not-a-article")
-      .expect(400)
-      .then((response) => {
-        expect(response.body.msg).toBe("Bad request");
       });
   });
-
+});
+test("GET:400 sends an appropriate status and error message when given an invalid id", () => {
+  return request(app)
+    .get("/api/articles/not-a-article")
+    .expect(400)
+    .then((response) => {
+      expect(response.body.msg).toBe("Bad request");
+    });
+});
 
 describe("GET /api/articles", () => {
   test("GET:200 status responds with an array of articles with expected properties", () => {
@@ -122,18 +119,15 @@ describe("GET /api/articles", () => {
         });
       });
   });
-  test(
-    "GET:200 status responds with the array of articles, all articles sorted based on date (created_by) in descending order", () => {
-      return request(app)
+  test("GET:200 status responds with the array of articles, all articles sorted based on date (created_by) in descending order", () => {
+    return request(app)
       .get("/api/articles")
       .expect(200)
       .then((res) => {
         const article = res.body.articles;
-        expect(article).toBeSortedBy('created_at', {descending: true})
-
-      })
-    }
-  );
+        expect(article).toBeSortedBy("created_at", { descending: true });
+      });
+  });
 });
 
 describe("GET /api/articles/:article_id/comments", () => {
@@ -146,34 +140,81 @@ describe("GET /api/articles/:article_id/comments", () => {
         expect(Array.isArray(comment)).toBe(true);
         expect(comment.length).toBe(2);
         comment.forEach((comment) => {
-          expect(typeof comment.comment_id).toBe('number');
+          expect(typeof comment.comment_id).toBe("number");
           expect(comment.article_id).toBe(9);
-          expect(typeof comment.votes).toBe('number')
-          expect(typeof comment.author).toBe("string")
-          expect(typeof comment.body).toBe('string')
-          expect(typeof comment.created_at).toBe("string")
+          expect(typeof comment.votes).toBe("number");
+          expect(typeof comment.author).toBe("string");
+          expect(typeof comment.body).toBe("string");
+          expect(typeof comment.created_at).toBe("string");
         });
       });
   });
   test("GET:200 status responds with the most recent comments first.", () => {
     return request(app)
-    .get("/api/articles/9/comments")
-    .expect(200)
-    .then((res) => {
-      const comment = res.body.comments;
-      expect(comment).toBeSortedBy('created_at', {descending: true})
-
-    })
-  })
-  test("GET:204 responds with a message of no comments when the articles doesnt have any comments", () => {
+      .get("/api/articles/9/comments")
+      .expect(200)
+      .then((res) => {
+        const comment = res.body.comments;
+        expect(comment).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+  test("GET:404 responds with a message of no comments when the articles doesnt have any comments", () => {
     return request(app)
-    .get("/api/articles/13/comments")
-    .expect(404)
-    .then((res) => {
-      const err = res.body.msg
+      .get("/api/articles/13/comments")
+      .expect(404)
+      .then((res) => {
+        const err = res.body.msg;
+        expect(err).toBe("no comments on this article");
+      });
+  });
+});
 
-      expect(err).toBe("no comments on this article");
-    })
-    })
-  })
+describe("POST: /api/articles/:article_id/comments ", () => {
+  test("POST: 201 status responds with the addition of the new comment in the database", () => {
+    const newComment = {
+      username: "lurker",
+      body: "Why do they call it rush hour when nothing moves?",
+    };
+    return request(app)
+      .post("/api/articles/2/comments")
+      .send(newComment)
+      .expect(201)
+      .then((res) => {
+        const newComment = res.body.newComment;
+        expect(newComment.article_id).toBe(2);
+        expect(newComment.author).toBe("lurker");
+        expect(newComment.body).toBe(
+          "Why do they call it rush hour when nothing moves?"
+        );
+      });
+  });
+  test("POST: 404 error is returned when a username is given that does not exist", () => {
+    const newComment = {
+      username: "invalidUsername",
+      body: "Why do they call it rush hour when nothing moves?",
+    };
+    return request(app)
+      .post("/api/articles/2/comments")
+      .send(newComment)
+      .expect(404)
+      .then((res) => {
+        const err = res.body.msg;
+        expect(err).toBe("this username does not exist");
+      });
+  });
+})
+  test("POST: 400 error is returned when one or all of the required fields are left null", () => {
+    const newComment = {
+      username: "lurker",
+      body: null,
+    };
+    return request(app)
+      .post("/api/articles/2/comments")
+      .send(newComment)
+      .expect(400)
+      .then((res) => {
+        const err = res.body.msg;
+        expect(err).toBe("Bad request");
+      });
+  });
 

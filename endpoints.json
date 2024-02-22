@@ -68,5 +68,18 @@
         }
       ]
     }
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "post an comment based on article ID",
+    "queries": [],
+    "exampleResponse": {
+      "Newcomment" : [
+        {
+          "username": "lurker",
+          "body": null
+        }
+        
+      ]
+    }
   }
 }
