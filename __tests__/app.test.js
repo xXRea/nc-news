@@ -274,3 +274,20 @@ describe("DELETE: 204 /api/comments/:comment_id", () => {
 });
 
 
+describe("GET /api/users", () => {
+  test("GET:200 status responds with an array of users objects with the appropriate properties", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then((response) => {
+        const user = response.body.users;
+        expect(Array.isArray(user)).toBe(true);
+        expect(user.length).toBe(4);
+        user.forEach((user) => {
+          expect(typeof user.username).toBe("string");
+          expect(typeof user.name).toBe("string");
+          expect(typeof user.avatar_url).toBe("string");
+        });
+      });
+  });
+});
