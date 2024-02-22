@@ -202,19 +202,57 @@ describe("POST: /api/articles/:article_id/comments ", () => {
         expect(err).toBe("this username does not exist");
       });
   });
-})
-  test("POST: 400 error is returned when one or all of the required fields are left null", () => {
-    const newComment = {
-      username: "lurker",
-      body: null,
-    };
+});
+test("POST: 400 error is returned when one or all of the required fields are left null", () => {
+  const newComment = {
+    username: "lurker",
+    body: null,
+  };
+  return request(app)
+    .post("/api/articles/2/comments")
+    .send(newComment)
+    .expect(400)
+    .then((res) => {
+      const err = res.body.msg;
+      expect(err).toBe("Bad request");
+    });
+});
+
+describe("PATCH: 200 /api/articles/:article_id", () => {
+  test("PATCH: 200 status responds with the updated article object based on article id", () => {
+    const updatedArticle = { inc_votes: 4 };
     return request(app)
-      .post("/api/articles/2/comments")
-      .send(newComment)
-      .expect(400)
+      .patch("/api/articles/1")
+      .send(updatedArticle)
+      .expect(200)
       .then((res) => {
-        const err = res.body.msg;
-        expect(err).toBe("Bad request");
+        const updatedArticle = res.body.updatedArticle;
+        expect(updatedArticle.article_id).toBe(1);
+        expect(updatedArticle.votes).toBe(104);
+        expect(updatedArticle.author).toBe("butter_bridge");
+        expect(updatedArticle.body).toBe("I find this existence challenging");
+        expect(updatedArticle.created_at).toBe("2020-07-09T20:11:00.000Z");
+        expect(updatedArticle.article_img_url).toBe(
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        );
       });
   });
-
+  test("PATCH: 404 error is given when attempting to access an id that does not exist", () => {
+    return request(app)
+      .patch("/api/articles/9999")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe( "Failed to update becasue the article does not exist");
+      });
+  });
+  test("PATCH: 400 error is given when attempting to update the vote field with a value that is not a number ", () => {
+    const updatedArticle = { inc_votes: "invalid" }
+    return request(app)
+    .patch("/api/articles/4")
+    .send(updatedArticle)
+      .expect(400)
+      .then((res) => {
+        expect(res.body.msg).toBe("Bad request")
+      })   
+  });
+});
