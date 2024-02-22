@@ -3,7 +3,8 @@ const {
   selectArticles,
   selectAllCommentsByArticleId,
   insertCommentByArticleId,
-  updateArticleById
+  updateArticleById,
+  removeCommentById,
 } = require("../model/articles.model");
 const data = require("../db/data/test-data/index")
 
@@ -60,8 +61,19 @@ function patchArticleById(req, res, next) {
   .catch((err) => {
     next(err)
   })
-
 }
 
 
-module.exports = { getArticlesById, getArticles, getAllCommentsByArticleId, postComments, patchArticleById };
+function deleteCommentById(req, res, next) {
+  const {comment_id} = req.params;
+  removeCommentById(comment_id).then((deletedComment) => {
+    res.status(204).send({ deletedComment }); 
+  }).catch((err) => {
+    next(err)
+  })
+}
+
+
+
+
+module.exports = { getArticlesById, getArticles, getAllCommentsByArticleId, postComments, patchArticleById, deleteCommentById };

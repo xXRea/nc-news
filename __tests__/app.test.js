@@ -242,17 +242,35 @@ describe("PATCH: 200 /api/articles/:article_id", () => {
       .patch("/api/articles/9999")
       .expect(404)
       .then((response) => {
-        expect(response.body.msg).toBe( "Failed to update becasue the article does not exist");
+        expect(response.body.msg).toBe(
+          "Failed to update becasue the article does not exist"
+        );
       });
   });
   test("PATCH: 400 error is given when attempting to update the vote field with a value that is not a number ", () => {
-    const updatedArticle = { inc_votes: "invalid" }
+    const updatedArticle = { inc_votes: "invalid" };
     return request(app)
-    .patch("/api/articles/4")
-    .send(updatedArticle)
+      .patch("/api/articles/4")
+      .send(updatedArticle)
       .expect(400)
       .then((res) => {
-        expect(res.body.msg).toBe("Bad request")
-      })   
+        expect(res.body.msg).toBe("Bad request");
+      });
   });
 });
+
+describe("DELETE: 204 /api/comments/:comment_id", () => {
+  test("DELETE: 204 responds with the deleted comment", () => {
+    return request(app).delete("/api/comments/4").expect(204);
+  });
+  test("DELETE: 400 responds with an appropriate status and error message when given an invalid", () => {
+    return request(app)
+    .delete("/api/comments/not-a-num")
+    .expect(400)
+    .then((res) => {
+      expect(res.body.msg).toBe("Bad request")
+    })
+  })
+});
+
+
