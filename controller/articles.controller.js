@@ -2,7 +2,8 @@ const {
   selectArticlesById,
   selectArticles,
   selectAllCommentsByArticleId,
-  insertCommentByArticleId
+  insertCommentByArticleId,
+  updateArticleById
 } = require("../model/articles.model");
 const data = require("../db/data/test-data/index")
 
@@ -50,5 +51,17 @@ function postComments(req, res, next) {
   })
 }
 
+function patchArticleById(req, res, next) {
+  const {article_id} = req.params
+  const newVote = req.body.inc_votes
+  updateArticleById(article_id, newVote).then((updatedArticle) => {
+    res.status(200).send({ updatedArticle })
+  })
+  .catch((err) => {
+    next(err)
+  })
 
-module.exports = { getArticlesById, getArticles, getAllCommentsByArticleId, postComments };
+}
+
+
+module.exports = { getArticlesById, getArticles, getAllCommentsByArticleId, postComments, patchArticleById };
