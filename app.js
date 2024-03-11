@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require ('cors')
 const { getTopics } = require("./controller/topics.controller");
 const { getApi } = require("./controller/api.controller");
 const {
@@ -11,7 +12,10 @@ const {
 } = require("./controller/articles.controller");
 const { getAllUsers } = require("./controller/users.controller")
 
+
 const app = express();
+app.use(cors());
+
 app.use(express.json());
 
 app.get("/api/topics", getTopics);
@@ -33,6 +37,7 @@ app.all("/api/*", (req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
+  console.log(err.msg)
   if (err.status && err.msg) {
     res.status(err.status).send({ msg: err.msg });
   }
